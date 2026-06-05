@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veera Raghavalu Bethamsetty | Azure Cloud & DevOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00f5ff;
+    --orange: #FF3D00;
+    --purple: #6C00FF;
+    --green: #00C9A7;
+    --yellow: #FFB800;
+    --dark: #020510;
+    --darker: #010308;
+    --card-bg: rgba(0, 245, 255, 0.03);
+    --border: rgba(0, 245, 255, 0.15);
+    --text: #c8e6ff;
+    --glow: 0 0 30px rgba(0, 245, 255, 0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  .cursor { width: 12px; height: 12px; background: var(--cyan); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: transform 0.1s ease; box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan); }
+  .cursor-ring { width: 40px; height: 40px; border: 1px solid rgba(0,245,255,0.4); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: all 0.15s ease; }
+
+  #canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+
+  /* Nav */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60px; display: flex; align-items: center; justify-content: space-between; background: rgba(2,5,16,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900; color: var(--cyan); text-shadow: var(--glow); letter-spacing: 4px; }
+  .logo:hover { animation: glitch 0.3s; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--text); text-decoration: none; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; transition: color 0.3s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--cyan); transition: width 0.3s; }
+  .nav-links a:hover { color: var(--cyan); } .nav-links a:hover::after { width: 100%; }
+  .hire-btn { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; letter-spacing: 2px; padding: 10px 22px; border: 1px solid var(--cyan); color: var(--cyan); background: transparent; text-decoration: none; text-transform: uppercase; transition: all 0.3s; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .hire-btn:hover { background: var(--cyan); color: var(--dark); box-shadow: var(--glow); }
+
+  section { position: relative; z-index: 1; }
+
+  /* Hero */
+  #hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 60px 60px; }
+  .hero-content { max-width: 800px; }
+  .hero-tag { font-size: 0.68rem; letter-spacing: 4px; color: var(--cyan); text-transform: uppercase; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s 0.3s forwards; display: flex; align-items: center; gap: 12px; }
+  .hero-tag::before { content: ''; width: 40px; height: 1px; background: var(--cyan); display: inline-block; }
+  h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(2.6rem, 5.5vw, 4.8rem); font-weight: 900; line-height: 1.05; color: #fff; opacity: 0; animation: fadeUp 0.8s 0.5s forwards; margin-bottom: 8px; }
+  h1 span { color: var(--cyan); text-shadow: var(--glow); }
+  .hero-role { font-family: 'Orbitron', sans-serif; font-size: clamp(0.85rem, 1.6vw, 1.2rem); color: rgba(200,230,255,0.5); letter-spacing: 6px; margin-bottom: 28px; opacity: 0; animation: fadeUp 0.8s 0.7s forwards; min-height: 1.5em; }
+  .hero-desc { font-size: 0.82rem; line-height: 1.9; color: rgba(200,230,255,0.6); margin-bottom: 40px; max-width: 520px; opacity: 0; animation: fadeUp 0.8s 0.9s forwards; }
+  .hero-desc .comment { color: rgba(0,245,255,0.5); }
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s 1.1s forwards; }
+  .btn-primary { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; letter-spacing: 2px; padding: 13px 30px; background: var(--cyan); color: var(--dark); text-decoration: none; text-transform: uppercase; font-weight: 700; clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); transition: all 0.3s; box-shadow: var(--glow); }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+  .btn-ghost { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; letter-spacing: 2px; padding: 13px 30px; border: 1px solid var(--border); color: var(--text); text-decoration: none; text-transform: uppercase; clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); transition: all 0.3s; }
+  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .hero-stats { position: absolute; right: 60px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 28px; opacity: 0; animation: fadeLeft 0.8s 1.3s forwards; }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--cyan); text-shadow: var(--glow); display: block; line-height: 1; }
+  .stat-label { font-size: 0.58rem; letter-spacing: 2px; color: rgba(200,230,255,0.4); text-transform: uppercase; }
+  .stat-divider { width: 1px; height: 36px; background: var(--border); margin: 0 auto; }
+
+  /* Section styles */
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: clamp(1.5rem, 2.8vw, 2.2rem); font-weight: 900; color: #fff; margin-bottom: 8px; }
+  .section-title span { color: var(--cyan); text-shadow: var(--glow); }
+  .section-tag { font-size: 0.62rem; letter-spacing: 3px; color: rgba(0,245,255,0.5); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-tag::before { content: ''; width: 30px; height: 1px; background: var(--cyan); }
+  .section-line { width: 60px; height: 2px; background: linear-gradient(90deg, var(--cyan), transparent); margin-bottom: 56px; }
+
+  /* About */
+  #about { padding: 120px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .about-text p { font-size: 0.82rem; line-height: 2; color: rgba(200,230,255,0.65); margin-bottom: 18px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+  .info-item { padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border); clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .info-label { font-size: 0.58rem; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; margin-bottom: 3px; }
+  .info-val { font-size: 0.75rem; color: var(--text); }
+  .edu-list { display: flex; flex-direction: column; gap: 18px; }
+  .edu-card { padding: 22px 26px; background: var(--card-bg); border: 1px solid var(--border); border-left: 3px solid var(--cyan); position: relative; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; transform-style: preserve-3d; }
+  .edu-card:hover { transform: translateX(8px) rotateY(-2deg); box-shadow: -8px 0 30px rgba(0,245,255,0.2); }
+  .edu-card::before { content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: radial-gradient(circle, rgba(0,245,255,0.1) 0%, transparent 70%); }
+  .edu-degree { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; color: #fff; margin-bottom: 4px; }
+  .edu-school { font-size: 0.7rem; color: rgba(200,230,255,0.5); margin-bottom: 8px; }
+  .edu-score { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900; color: var(--cyan); text-shadow: var(--glow); }
+
+  /* Skills — professional list style */
+  #skills { padding: 120px 60px; }
+  .skills-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; margin-top: 0; align-items: start; }
+  .skills-intro { color: rgba(200,230,255,0.6); font-size: 0.82rem; line-height: 2; }
+  .skill-category { margin-bottom: 36px; }
+  .skill-category-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,245,255,0.45); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .skill-category-label::after { content: ''; flex: 1; height: 1px; background: rgba(0,245,255,0.08); }
+  .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid rgba(0,245,255,0.05); }
+  .skill-row:last-child { border-bottom: none; }
+  .skill-left { display: flex; align-items: center; gap: 12px; }
+  .skill-icon-box { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .skill-info-name { font-size: 0.75rem; font-weight: 700; color: var(--text); letter-spacing: 1px; }
+  .skill-info-sub { font-size: 0.62rem; color: rgba(200,230,255,0.35); margin-top: 1px; }
+  .skill-right { display: flex; align-items: center; gap: 10px; }
+  .skill-track { width: 110px; height: 3px; background: rgba(0,245,255,0.07); border-radius: 4px; overflow: hidden; }
+  .skill-fill { height: 100%; border-radius: 4px; width: 0; transition: width 1.4s cubic-bezier(0.25,1,0.5,1); }
+  .skill-pct { font-size: 0.62rem; color: rgba(0,245,255,0.5); font-family: 'Orbitron', sans-serif; width: 28px; text-align: right; }
+
+  /* Strengths */
+  #strengths { padding: 80px 60px; }
+  .strengths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .strength-card { padding: 28px 20px; background: var(--card-bg); border: 1px solid var(--border); text-align: center; transition: all 0.4s; transform-style: preserve-3d; position: relative; overflow: hidden; }
+  .strength-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); transform: scaleX(0); transition: transform 0.4s; }
+  .strength-card:hover { transform: translateY(-8px) rotateX(6deg); border-color: var(--cyan); box-shadow: 0 20px 50px rgba(0,245,255,0.15); }
+  .strength-card:hover::after { transform: scaleX(1); }
+  .strength-icon { font-size: 1.8rem; display: block; margin-bottom: 10px; }
+  .strength-label { font-size: 0.6rem; letter-spacing: 1px; color: rgba(200,230,255,0.6); text-transform: uppercase; font-family: 'Orbitron', sans-serif; }
+
+  /* Projects */
+  #projects { padding: 120px 60px; }
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .project-card { padding: 34px; background: var(--card-bg); border: 1px solid var(--border); position: relative; overflow: hidden; transition: all 0.5s cubic-bezier(0.23,1,0.32,1); transform-style: preserve-3d; cursor: pointer; }
+  .project-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 0deg, rgba(0,245,255,0.05) 60deg, transparent 120deg); opacity: 0; transition: opacity 0.5s; animation: rotate 6s linear infinite; }
+  .project-card:hover { transform: translateY(-12px) rotateX(5deg) rotateY(-3deg); border-color: var(--cyan); box-shadow: 0 30px 80px rgba(0,245,255,0.2); }
+  .project-card:hover::before { opacity: 1; }
+  .project-num { font-family: 'Orbitron', sans-serif; font-size: 3.2rem; font-weight: 900; color: rgba(0,245,255,0.06); position: absolute; top: 18px; right: 22px; line-height: 1; }
+  .project-emoji { font-size: 2.2rem; margin-bottom: 18px; display: block; }
+  .project-title { font-family: 'Orbitron', sans-serif; font-size: 0.88rem; color: #fff; margin-bottom: 14px; font-weight: 700; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .project-tag { font-size: 0.58rem; padding: 3px 10px; background: rgba(0,245,255,0.07); border: 1px solid rgba(0,245,255,0.2); color: var(--cyan); letter-spacing: 1px; }
+  .project-desc { list-style: none; }
+  .project-desc li { font-size: 0.73rem; color: rgba(200,230,255,0.55); line-height: 1.7; padding: 4px 0; display: flex; gap: 8px; }
+  .project-desc li::before { content: '→'; color: var(--cyan); flex-shrink: 0; }
+
+  /* Certs */
+  #certifications { padding: 120px 60px; }
+  .certs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; }
+  .cert-card { padding: 26px 22px; background: var(--card-bg); border: 1px solid var(--border); text-align: center; transition: all 0.4s; transform-style: preserve-3d; position: relative; overflow: hidden; }
+  .cert-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); transform: scaleX(0); transition: transform 0.4s; }
+  .cert-card:hover { transform: translateY(-8px) rotateX(6deg); box-shadow: 0 20px 50px rgba(0,245,255,0.15); border-color: var(--cyan); }
+  .cert-card:hover::after { transform: scaleX(1); }
+  .cert-icon { font-size: 1.9rem; margin-bottom: 10px; display: block; }
+  .cert-title { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #fff; margin-bottom: 5px; font-weight: 700; letter-spacing: 1px; }
+  .cert-org { font-size: 0.62rem; color: var(--cyan); letter-spacing: 1px; }
+
+  /* Contact */
+  #contact { padding: 120px 60px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .contact-intro { font-size: 0.82rem; line-height: 2; color: rgba(200,230,255,0.6); margin-bottom: 36px; }
+  .contact-links { display: flex; flex-direction: column; gap: 14px; }
+  .contact-link { display: flex; align-items: center; gap: 16px; padding: 18px 22px; background: var(--card-bg); border: 1px solid var(--border); text-decoration: none; color: var(--text); transition: all 0.3s; clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); }
+  .contact-link:hover { border-color: var(--cyan); color: var(--cyan); transform: translateX(8px); box-shadow: var(--glow); }
+  .contact-link-icon { font-size: 1.1rem; }
+  .contact-link-label { font-size: 0.58rem; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; margin-bottom: 2px; }
+  .contact-link-val { font-size: 0.75rem; }
+  .contact-extras { display: flex; flex-direction: column; gap: 20px; }
+  .extras-card { padding: 24px 26px; background: var(--card-bg); border: 1px solid var(--border); transition: border-color 0.3s; }
+  .extras-card:hover { border-color: rgba(0,245,255,0.3); }
+  .extras-title { font-family: 'Orbitron', sans-serif; font-size: 0.66rem; color: var(--cyan); letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; }
+  .extras-content { font-size: 0.78rem; color: rgba(200,230,255,0.6); line-height: 1.8; }
+
+  footer { padding: 36px 60px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; flex-wrap: wrap; gap: 14px; }
+  .footer-logo { font-family: 'Orbitron', sans-serif; font-size: 0.88rem; color: var(--cyan); letter-spacing: 3px; }
+  .footer-copy { font-size: 0.62rem; color: rgba(200,230,255,0.3); letter-spacing: 1px; }
+  .footer-badge { font-size: 0.62rem; padding: 6px 14px; border: 1px solid rgba(0,245,255,0.2); color: var(--cyan); letter-spacing: 2px; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); animation: pulse 2s infinite; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.23,1,0.32,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Animations */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeLeft { from{opacity:0;transform:translate(40px,-50%)} to{opacity:1;transform:translate(0,-50%)} }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 rgba(0,245,255,0)} 50%{box-shadow:0 0 20px rgba(0,245,255,0.3)} }
+  @keyframes glitch {
+    0%{text-shadow:2px 0 var(--cyan),-2px 0 var(--purple)}
+    25%{text-shadow:-2px 0 var(--cyan),2px 0 var(--purple);clip-path:inset(20% 0 50% 0)}
+    50%{text-shadow:2px 0 var(--purple),-2px 0 var(--cyan);clip-path:inset(60% 0 10% 0)}
+    75%{text-shadow:-2px 0 var(--purple),2px 0 var(--cyan);clip-path:inset(0)}
+    100%{text-shadow:var(--glow)}
+  }
+
+  body::before { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:999; }
+
+  #progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--cyan), var(--orange), var(--purple)); width: 0%; z-index: 200; transition: width 0.1s linear; }
+  #back-top { position: fixed; bottom: 28px; right: 28px; width: 40px; height: 40px; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s; z-index: 99; clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); font-family: monospace; }
+  #back-top.visible { opacity: 1; transform: translateY(0); } #back-top:hover { background: var(--cyan); color: var(--dark); box-shadow: var(--glow); }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; } .nav-links { display: none; }
+    #hero { padding: 120px 24px 60px; } .hero-stats { display: none; }
+    #about { padding: 80px 24px; grid-template-columns: 1fr; gap: 40px; }
+    #skills, #projects, #certifications, #strengths, #contact { padding: 80px 24px; }
+    .skills-layout { grid-template-columns: 1fr; gap: 24px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    footer { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<canvas id="canvas"></canvas>
+
+<!-- Nav -->
+<nav id="navbar">
+  <div class="logo">VRB</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#strengths">Strengths</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="mailto:veerabethamsetty@gmail.com" class="hire-btn">Hire Me</a>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-tag">Open to Work · Azure Cloud & DevOps · 2025</div>
+    <h1>Veera Raghavalu<br><span>Bethamsetty</span></h1>
+    <div class="hero-role" id="hero-role"></div>
+    <p class="hero-desc">
+      <span class="comment">// Building scalable cloud infrastructure with</span><br>
+      Azure · DevOps · CI/CD pipelines & networking.<br>
+      Based in Hyderabad, Telangana, India.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">View Projects →</a>
+      <a href="#contact" class="btn-ghost">Get In Touch</a>
+      <a href="mailto:veerabethamsetty@gmail.com" class="btn-ghost">Email ↗</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num">7.8</span>
+      <span class="stat-label">B.Tech CGPA</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">2+</span>
+      <span class="stat-label">NPTEL Certs</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">3+</span>
+      <span class="stat-label">Azure Projects</span>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="about-left">
+    <div class="section-tag reveal">About Me</div>
+    <h2 class="section-title reveal">Engineer by degree,<br><span>cloud builder</span> by passion.</h2>
+    <div class="section-line reveal"></div>
+    <p class="about-text reveal" style="font-size:0.82rem;line-height:2;color:rgba(200,230,255,0.65);margin-bottom:18px;">
+      I'm Veera Raghavalu Bethamsetty — an Azure Cloud & DevOps fresher from Hyderabad with hands-on training in cloud infrastructure, networking, and automated CI/CD deployments.
+    </p>
+    <p class="about-text reveal" style="font-size:0.82rem;line-height:2;color:rgba(200,230,255,0.65);margin-bottom:18px;">
+      I've deployed web applications on Azure Web Apps, provisioned Virtual Machines, designed VNet architectures with NSGs and Load Balancers, and built full CI/CD pipelines using Azure DevOps and GitHub Actions.
+    </p>
+    <p class="about-text reveal" style="font-size:0.82rem;line-height:2;color:rgba(200,230,255,0.65);">
+      Passionate about secure, highly available cloud solutions. Seeking a full-time role where I can contribute, grow, and make real impact in the cloud ecosystem.
+    </p>
+    <div class="info-grid reveal">
+      <div class="info-item"><div class="info-label">Location</div><div class="info-val">Hyderabad, TG, India</div></div>
+      <div class="info-item"><div class="info-label">Email</div><div class="info-val">veerabethamsetty@gmail.com</div></div>
+      <div class="info-item"><div class="info-label">Phone</div><div class="info-val">+91 79957 27286</div></div>
+      <div class="info-item"><div class="info-label">Languages</div><div class="info-val">English · Telugu · Hindi</div></div>
+    </div>
+  </div>
+  <div class="about-right">
+    <div class="section-tag reveal">Education</div>
+    <h2 class="section-title reveal">Academic <span>Journey</span></h2>
+    <div class="section-line reveal"></div>
+    <div class="edu-list">
+      <div class="edu-card reveal">
+        <div class="edu-degree">B.Tech ECE · 2021 – 2025</div>
+        <div class="edu-school">Electronics & Communication Engineering</div>
+        <div class="edu-score">7.8 CGPA</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Intermediate · 2019 – 2021</div>
+        <div class="edu-school">MPC Stream</div>
+        <div class="edu-score">8.6 CGPA</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">SSC · 2018 – 2019</div>
+        <div class="edu-school">Secondary School Certificate</div>
+        <div class="edu-score">8.7 CGPA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+  <div class="section-tag reveal">What I work with</div>
+  <h2 class="section-title reveal">Technical <span>Arsenal</span></h2>
+  <div class="section-line reveal"></div>
+  <div class="skills-layout">
+    <div class="skills-intro reveal">
+      From Azure cloud services and enterprise networking to DevOps pipelines and backend programming — here's what I bring to every project.
+    </div>
+    <div>
+      <div class="skill-category reveal">
+        <div class="skill-category-label">Azure Cloud</div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(255,61,0,0.12)">☁️</div><div><div class="skill-info-name">Virtual Machines</div><div class="skill-info-sub">IaaS compute workloads</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="85" style="background:var(--cyan)"></div></div><span class="skill-pct">85%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(0,245,255,0.08)">🌐</div><div><div class="skill-info-name">Azure Web Apps</div><div class="skill-info-sub">PaaS web deployment</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="82" style="background:var(--cyan)"></div></div><span class="skill-pct">82%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(108,0,255,0.12)">💾</div><div><div class="skill-info-name">Storage Accounts</div><div class="skill-info-sub">Blob, Queue, Table</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="80" style="background:var(--purple)"></div></div><span class="skill-pct">80%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(255,184,0,0.1)">🔑</div><div><div class="skill-info-name">IAM & Policies</div><div class="skill-info-sub">Role-based access control</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="78" style="background:var(--yellow)"></div></div><span class="skill-pct">78%</span></div>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="skill-category-label">Networking & DevOps</div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(0,245,255,0.08)">🔗</div><div><div class="skill-info-name">VNets / Subnets / NSG</div><div class="skill-info-sub">Network segmentation & security</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="83" style="background:var(--cyan)"></div></div><span class="skill-pct">83%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(0,201,167,0.1)">⚖️</div><div><div class="skill-info-name">Load Balancer / DNS</div><div class="skill-info-sub">High availability routing</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="80" style="background:var(--green)"></div></div><span class="skill-pct">80%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(108,0,255,0.12)">🔄</div><div><div class="skill-info-name">Azure DevOps CI/CD</div><div class="skill-info-sub">Pipelines & repositories</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="78" style="background:var(--purple)"></div></div><span class="skill-pct">78%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(255,61,0,0.1)">⚡</div><div><div class="skill-info-name">GitHub Actions</div><div class="skill-info-sub">Automated workflows</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="72" style="background:var(--orange)"></div></div><span class="skill-pct">72%</span></div>
+        </div>
+      </div>
+      <div class="skill-category reveal">
+        <div class="skill-category-label">Programming & Web</div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(0,245,255,0.08)">🐍</div><div><div class="skill-info-name">Python</div><div class="skill-info-sub">Scripting & automation</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="80" style="background:var(--cyan)"></div></div><span class="skill-pct">80%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(255,184,0,0.1)">☕</div><div><div class="skill-info-name">Java / C</div><div class="skill-info-sub">Object-oriented & systems</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="70" style="background:var(--yellow)"></div></div><span class="skill-pct">70%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(0,201,167,0.1)">🎨</div><div><div class="skill-info-name">HTML / CSS / JS</div><div class="skill-info-sub">Frontend basics</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="75" style="background:var(--green)"></div></div><span class="skill-pct">75%</span></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-left"><div class="skill-icon-box" style="background:rgba(108,0,255,0.12)">🗄️</div><div><div class="skill-info-name">MySQL / PostgreSQL</div><div class="skill-info-sub">Relational databases</div></div></div>
+          <div class="skill-right"><div class="skill-track"><div class="skill-fill" data-width="72" style="background:var(--purple)"></div></div><span class="skill-pct">72%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Strengths -->
+<section id="strengths">
+  <div class="section-tag reveal">What drives me</div>
+  <h2 class="section-title reveal">Core <span>Strengths</span></h2>
+  <div class="section-line reveal"></div>
+  <div class="strengths-grid">
+    <div class="strength-card reveal"><span class="strength-icon">🔥</span><div class="strength-label">Self-Motivated</div></div>
+    <div class="strength-card reveal"><span class="strength-icon">⚡</span><div class="strength-label">Quick Learner</div></div>
+    <div class="strength-card reveal"><span class="strength-icon">🧩</span><div class="strength-label">Problem Solver</div></div>
+    <div class="strength-card reveal"><span class="strength-icon">🤝</span><div class="strength-label">Team Player</div></div>
+    <div class="strength-card reveal"><span class="strength-icon">🎯</span><div class="strength-label">Detail Oriented</div></div>
+    <div class="strength-card reveal"><span class="strength-icon">📈</span><div class="strength-label">Growth Mindset</div></div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="section-tag reveal">Things I've built</div>
+  <h2 class="section-title reveal">Featured <span>Projects</span></h2>
+  <div class="section-line reveal"></div>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-num">01</div>
+      <span class="project-emoji">☁️</span>
+      <div class="project-title">Azure Cloud Infrastructure & Web App Deployment</div>
+      <div class="project-tags">
+        <span class="project-tag">Azure</span><span class="project-tag">VMs</span><span class="project-tag">DevOps</span><span class="project-tag">IAM</span>
+      </div>
+      <ul class="project-desc">
+        <li>Deployed web application using Azure Web Apps with full CI/CD automation.</li>
+        <li>Provisioned and managed Virtual Machines for compute workloads.</li>
+        <li>Managed access control using Azure IAM roles and Storage Accounts.</li>
+      </ul>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">02</div>
+      <span class="project-emoji">🔒</span>
+      <div class="project-title">Secure Network Architecture Design</div>
+      <div class="project-tags">
+        <span class="project-tag">VNet</span><span class="project-tag">NSG</span><span class="project-tag">Load Balancer</span><span class="project-tag">DNS</span>
+      </div>
+      <ul class="project-desc">
+        <li>Designed multi-subnet VNet topology with NSG rules for traffic control.</li>
+        <li>Implemented Azure Load Balancer for high availability across zones.</li>
+        <li>Configured IP addressing, subnetting, and secure communication channels.</li>
+      </ul>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">03</div>
+      <span class="project-emoji">⚙️</span>
+      <div class="project-title">Automated CI/CD Pipeline</div>
+      <div class="project-tags">
+        <span class="project-tag">CI/CD</span><span class="project-tag">Azure DevOps</span><span class="project-tag">GitHub Actions</span>
+      </div>
+      <ul class="project-desc">
+        <li>Built complete CI/CD pipeline using Azure DevOps Repositories.</li>
+        <li>Integrated GitHub Actions for automated build, test, and deployment.</li>
+        <li>Achieved zero-downtime deployments to Azure Web Apps production environment.</li>
+      </ul>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">04</div>
+      <span class="project-emoji">📡</span>
+      <div class="project-title">Design of Frequency & Pattern Reconfigurable Antenna for Cognitive Radio</div>
+      <div class="project-tags">
+        <span class="project-tag">Antenna Design</span><span class="project-tag">Cognitive Radio</span><span class="project-tag">RF Engineering</span><span class="project-tag">Wireless Comm.</span>
+      </div>
+      <ul class="project-desc">
+        <li>Designed a frequency & pattern reconfigurable antenna capable of adapting its operating frequency and radiation characteristics based on spectrum availability.</li>
+        <li>Employed reconfigurable antenna techniques to enable efficient spectrum utilization, reduce interference, and improve wireless communication performance.</li>
+        <li>Evaluated antenna performance through bandwidth, gain, return loss, radiation pattern, and frequency response parameters.</li>
+        <li>Gained practical exposure to adaptive communication systems, cognitive radio technology, and antenna design concepts.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Certifications -->
+<section id="certifications">
+  <div class="section-tag reveal">What I've earned</div>
+  <h2 class="section-title reveal">Certifi<span>cations</span></h2>
+  <div class="section-line reveal"></div>
+  <div class="certs-grid">
+    <div class="cert-card reveal"><span class="cert-icon">🏅</span><div class="cert-title">Cloud Computing</div><div class="cert-org">NPTEL — IIT Kharagpur</div></div>
+    <div class="cert-card reveal"><span class="cert-icon">🐍</span><div class="cert-title">Joy of Computing Using Python</div><div class="cert-org">NPTEL — IIT Madras</div></div>
+    <div class="cert-card reveal"><span class="cert-icon">☁️</span><div class="cert-title">Azure Cloud & DevOps Training</div><div class="cert-org">Hands-on Labs · Industry</div></div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="section-tag reveal">Let's connect</div>
+  <h2 class="section-title reveal">Get In <span>Touch</span></h2>
+  <div class="section-line reveal"></div>
+  <div class="contact-grid">
+    <div>
+      <p class="contact-intro reveal">
+        I'm actively looking for full-time opportunities in Azure Cloud & DevOps engineering. Whether you have a role in cloud infrastructure, networking, or CI/CD — I'd love to hear from you.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:veerabethamsetty@gmail.com" class="contact-link reveal">
+          <span class="contact-link-icon">✉️</span>
+          <div><div class="contact-link-label">Email</div><div class="contact-link-val">veerabethamsetty@gmail.com</div></div>
+        </a>
+        <a href="tel:+917995727286" class="contact-link reveal">
+          <span class="contact-link-icon">📞</span>
+          <div><div class="contact-link-label">Phone</div><div class="contact-link-val">+91 79957 27286</div></div>
+        </a>
+        <a href="https://www.linkedin.com/in/veera-raghavalu-bethamsetty-71a17b2b6" target="_blank" class="contact-link reveal">
+          <span class="contact-link-icon">💼</span>
+          <div><div class="contact-link-label">LinkedIn</div><div class="contact-link-val">veera-raghavalu-bethamsetty</div></div>
+        </a>
+        <a href="#" class="contact-link reveal">
+          <span class="contact-link-icon">🐙</span>
+          <div><div class="contact-link-label">GitHub</div><div class="contact-link-val">Add your GitHub URL</div></div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-extras">
+      <div class="extras-card reveal">
+        <div class="extras-title">📍 Location</div>
+        <div class="extras-content">Hyderabad, Telangana, India</div>
+      </div>
+      <div class="extras-card reveal">
+        <div class="extras-title">🗣️ Languages Known</div>
+        <div class="extras-content">🇮🇳 Telugu &nbsp;·&nbsp; 🌐 English &nbsp;·&nbsp; 🇮🇳 Hindi (Basic)</div>
+      </div>
+      <div class="extras-card reveal">
+        <div class="extras-title">🎯 Focus Areas</div>
+        <div class="extras-content">☁️ Azure Cloud &nbsp;·&nbsp; 🔄 DevOps &nbsp;·&nbsp; 🔒 Cloud Security &nbsp;·&nbsp; 🌐 Networking</div>
+      </div>
+      <div class="extras-card reveal" style="border-color:rgba(0,245,255,0.3)">
+        <div class="extras-title">📋 Declaration</div>
+        <div class="extras-content" style="font-style:italic;font-size:0.72rem;">"I hereby declare that all the information provided is true to the best of my knowledge and belief."<br><br>— Veera Raghavalu Bethamsetty</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">VRB</div>
+  <div class="footer-copy">© 2025 · Hyderabad, Telangana, India · Built with ❤️</div>
+  <div class="footer-badge">Open to Work</div>
+</footer>
+
+<script>
+// ── Custom Cursor ──
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animateCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  cursorRing.style.left = rx + 'px'; cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('a, button, .strength-card, .project-card, .cert-card, .edu-card, .extras-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; cursorRing.style.transform = 'translate(-50%,-50%) scale(1.4)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursorRing.style.transform = 'translate(-50%,-50%) scale(1)'; });
+});
+
+// ── 3D Particle Canvas ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+const NUM_PARTICLES = 130;
+let particles = [];
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', () => { resize(); initParticles(); });
+
+function rand(a, b) { return Math.random() * (b - a) + a; }
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = rand(0, W); this.y = rand(0, H);
+    this.z = rand(0.1, 1);
+    this.vx = rand(-0.35, 0.35) * this.z;
+    this.vy = rand(-0.35, 0.35) * this.z;
+    this.r = rand(0.5, 2) * this.z;
+    this.alpha = rand(0.2, 0.8) * this.z;
+    const r = Math.random();
+    this.color = r > 0.7 ? '#6C00FF' : r > 0.4 ? '#00f5ff' : '#FF3D00';
+  }
+  update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset(); }
+  draw() {
+    ctx.save(); ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color; ctx.shadowColor = this.color; ctx.shadowBlur = 8 * this.z;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+}
+
+function initParticles() { particles = []; for (let i = 0; i < NUM_PARTICLES; i++) particles.push(new Particle()); }
+initParticles();
+
+let mouseX = W / 2, mouseY = H / 2;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+function drawConnections() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const a = particles[i], b = particles[j];
+      const dx = a.x - b.x, dy = a.y - b.y, dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < 100) {
+        ctx.save(); ctx.globalAlpha = (1 - dist/100) * 0.14;
+        ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.restore();
+      }
+    }
+  }
+}
+
+let gridTime = 0;
+function drawGrid() {
+  gridTime += 0.003;
+  ctx.save(); ctx.globalAlpha = 0.035; ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 1;
+  const cols = 20, rows = 12, cw = W/cols, ch = H/rows;
+  for (let i = 0; i <= cols; i++) {
+    const wave = Math.sin(gridTime + i * 0.4) * 8;
+    ctx.beginPath(); ctx.moveTo(i*cw, 0+wave); ctx.lineTo(i*cw, H+wave); ctx.stroke();
+  }
+  for (let j = 0; j <= rows; j++) {
+    const wave = Math.sin(gridTime + j * 0.6) * 6;
+    ctx.beginPath(); ctx.moveTo(0+wave, j*ch); ctx.lineTo(W+wave, j*ch); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawMouseOrb() {
+  const grd = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 200);
+  grd.addColorStop(0, 'rgba(0,245,255,0.04)'); grd.addColorStop(1, 'rgba(0,245,255,0)');
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+}
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  drawGrid(); drawMouseOrb(); drawConnections();
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ── 3D Card Tilt ──
+document.querySelectorAll('.project-card, .cert-card, .edu-card, .strength-card, .extras-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+    const dx = (e.clientX - cx)/(rect.width/2), dy = (e.clientY - cy)/(rect.height/2);
+    card.style.transform = `perspective(600px) rotateX(${-dy*8}deg) rotateY(${dx*8}deg) translateY(-8px)`;
+  });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+});
+
+// ── Scroll Reveal ──
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), 60 * i);
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// ── Skill Bars ──
+const bars = document.querySelectorAll('.skill-fill');
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.style.width = e.target.dataset.width + '%'; barObs.unobserve(e.target); } });
+}, { threshold: 0.3 });
+bars.forEach(b => barObs.observe(b));
+
+// ── Scroll Progress & Back to Top ──
+const bar = document.getElementById('progress-bar'), bt = document.getElementById('back-top');
+window.addEventListener('scroll', () => {
+  bar.style.width = (window.scrollY/(document.body.scrollHeight - window.innerHeight)*100) + '%';
+  bt.classList.toggle('visible', window.scrollY > 400);
+  document.querySelector('nav').style.background = window.scrollY > 50 ? 'rgba(2,5,16,0.95)' : 'rgba(2,5,16,0.7)';
+});
+
+// ── Typed Role ──
+const roleEl = document.getElementById('hero-role');
+const roleText = 'AZURE CLOUD & DEVOPS ENGINEER';
+let ti = 0;
+function typeRole() {
+  if (ti <= roleText.length) {
+    roleEl.textContent = roleText.slice(0, ti) + (ti < roleText.length ? '|' : '');
+    ti++; setTimeout(typeRole, 70);
+  }
+}
+setTimeout(typeRole, 1200);
+</script>
+</body>
+</html>
